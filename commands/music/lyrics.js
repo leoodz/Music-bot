@@ -1,5 +1,6 @@
 const { EmbedBuilder } = require('discord.js');
 
+
 module.exports = {
     name: 'lyrics',
     description: 'get lyrics for the current track',
@@ -13,11 +14,14 @@ module.exports = {
         
         try {
         
-        const search = await genius.songs.search(queue.currentTrack.title); 
+        var songTitle = queue.currentTrack.title;
+        
+        songTitle = songTitle.replace(/lyrics|lyric|lyrical|official music video|\(official music video\)|audio|official|official video|official video hd|official hd video|offical video music|\(offical video music\)|extended|hd|(\[.+\])/gi, "");
+        
+        const lyrics = await lyricsFinder(songTitle);
 
-        const song = search.find(song => song.artist.name.toLowerCase() === queue.currentTrack.author.toLowerCase());
-        if (!song) return inter.editReply({ content: `No lyrics found for ${queue.currentTrack.title}... try again ? ❌`, ephemeral: true });
-        const lyrics = await song.lyrics();
+        if (!lyrics) return inter.editReply({ content: `No lyrics found for ${queue.currentTrack.title}... try again ? ❌`, ephemeral: true });
+
         const embeds = [];
         for (let i = 0; i < lyrics.length; i += 4096) {
             const toSend = lyrics.substring(i, Math.min(lyrics.length, i + 4096));
